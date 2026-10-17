@@ -1,0 +1,30 @@
+# ChurnIQ — Pinned Dependencies (Python 3.12)
+# ─────────────────────────────────────────────
+
+# API & Server
+fastapi==0.115.0
+uvicorn==0.30.6
+pydantic==2.9.2
+pydantic-settings>=2.5.0,<3.0.0
+python-dotenv>=1.0.0,<2.0.0
+
+# Database
+SQLAlchemy==2.0.35
+psycopg2-binary>=2.9.9,<3.0.0       # Only needed for PostgreSQL
+
+# Data Handling
+pandas==2.2.2
+numpy==1.26.4
+
+# ML & Preprocessing
+scikit-learn==1.5.1
+xgboost==2.1.1
+shap==0.46.0
+joblib>=1.4.0,<2.0.0
+
+# Generative AI
+google-genai>=1.30.0,<3.0.0
+
+# Testing
+pytest==8.3.2
+httpx>=0.27.0,<1.0.0

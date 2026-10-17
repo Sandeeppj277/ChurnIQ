@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChurnIQ — Customer Churn Prediction & Retention</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"/>
+                <path d="m19 9-5 5-4-4-3 3"/>
+            </svg>
+            Churn<span>IQ</span>
+        </div>
+        <nav>
+            <button class="nav-tab active" data-view="dashboard">Dashboard</button>
+            <button class="nav-tab" data-view="predict">Predict Customer</button>
+            <button class="nav-tab" data-view="result" id="nav-result-tab">Prediction Result</button>
+            <button class="nav-tab" data-view="metrics">Model Performance</button>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- ====================================================
+             VIEW 1: DASHBOARD
+             ==================================================== -->
+        <section id="view-dashboard" class="view-section active">
+            <div class="grid-3">
+                <div class="card stat-box">
+                    <div class="stat-label">Total Predictions Scored</div>
+                    <div class="stat-value" id="dash-total-scored">-</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Scored prediction instances</div>
+                </div>
+                <div class="card stat-box">
+                    <div class="stat-label">Average Churn Probability</div>
+                    <div class="stat-value" id="dash-avg-prob">-</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Across all evaluations</div>
+                </div>
+                <div class="card stat-box">
+                    <div class="stat-label">Risk Distribution</div>
+                    <div style="display: flex; justify-content: center; gap: 0.8rem; margin-top: 0.5rem;">
+                        <span class="badge badge-low" id="dash-count-low">Low: 0</span>
+                        <span class="badge badge-medium" id="dash-count-med">Med: 0</span>
+                        <span class="badge badge-high" id="dash-count-high">High: 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Recent Customer Predictions</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date / Time</th>
+                            <th>Customer ID</th>
+                            <th>Name</th>
+                            <th>Probability</th>
+                            <th>Risk Tier</th>
+                            <th>Prediction</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dash-recent-tbody">
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading recent scoring history...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ====================================================
+             VIEW 2: PREDICT CUSTOMER FORM
+             ==================================================== -->
+        <section id="view-predict" class="view-section">
+            <div class="card">
+                <div class="card-title">
+                    <span>1-Click Presets</span>
+                    <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Click to auto-populate form</span>
+                </div>
+                <div class="preset-buttons">
+                    <button type="button" class="btn btn-secondary" id="btn-load-high">Load High-Risk Sample</button>
+                    <button type="button" class="btn btn-secondary" id="btn-load-low">Load Low-Risk Sample</button>
+                    <button type="button" class="btn btn-secondary" id="btn-load-med">Load Moderate-Risk Sample</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Customer Profile Information</div>
+                <form id="predict-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Customer ID</label>
+                            <input type="text" id="inp-customer_id" required pattern="^[A-Za-z0-9_\-]+$" value="C90042">
+                        </div>
+                        <div class="form-group">
+                            <label>Customer Name</label>
+                            <input type="text" id="inp-customer_name" required value="Sarah Jenkins">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="inp-gender">
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Age (1 - 110)</label>
+                            <input type="number" id="inp-age" required min="1" max="110" value="42">
+                        </div>
+                        <div class="form-group">
+                            <label>Tenure (Months)</label>
+                            <input type="number" id="inp-tenure" required min="0" value="18">
+                        </div>
+                        <div class="form-group">
+                            <label>Subscription Tier</label>
+                            <select id="inp-subscription_type">
+                                <option value="Basic">Basic</option>
+                                <option value="Standard" selected>Standard</option>
+                                <option value="Premium">Premium</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Contract Type</label>
+                            <select id="inp-contract_type">
+                                <option value="Month-to-Month" selected>Month-to-Month</option>
+                                <option value="One-Year">One-Year</option>
+                                <option value="Two-Year">Two-Year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Monthly Charges ($)</label>
+                            <input type="number" step="0.01" id="inp-monthly_charges" required min="0" value="64.50">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Charges ($)</label>
+                            <input type="number" step="0.01" id="inp-total_charges" required min="0" value="1161.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Payment Method</label>
+                            <select id="inp-payment_method">
+                                <option value="Credit Card" selected>Credit Card</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Debit Card">Debit Card</option>
+                                <option value="Wallet">Wallet</option>
+                                <option value="Net Banking">Net Banking</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Payment Status</label>
+                            <select id="inp-payment_status">
+                                <option value="On Time" selected>On Time</option>
+                                <option value="Delayed">Delayed</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Usage Frequency (sessions/wk)</label>
+                            <input type="number" step="0.1" id="inp-usage_frequency" required min="0" value="14.2">
+                        </div>
+                        <div class="form-group">
+                            <label>Service Usage (0-100%)</label>
+                            <input type="number" step="0.1" id="inp-service_usage" required min="0" max="100" value="58.0">
+                        </div>
+                        <div class="form-group">
+                            <label>Complaints Logged</label>
+                            <input type="number" id="inp-complaint_count" required min="0" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Support Calls</label>
+                            <input type="number" id="inp-support_calls" required min="0" value="2">
+                        </div>
+                        <div class="form-group">
+                            <label>Engagement Score (0-100)</label>
+                            <input type="number" step="0.1" id="inp-engagement_score" required min="0" max="100" value="62.5">
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn" id="btn-submit-predict">Predict Churn Risk</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ====================================================
+             VIEW 3: PREDICTION RESULT & RETENTION STUDIO
+             ==================================================== -->
+        <section id="view-result" class="view-section">
+            
+            <!-- Result Banner -->
+            <div class="card result-header">
+                <div class="gauge-container">
+                    <svg class="gauge-svg" width="160" height="160" viewBox="0 0 160 160">
+                        <circle class="gauge-circle-bg" cx="80" cy="80" r="65"/>
+                        <circle class="gauge-circle-fill" id="gauge-fill" cx="80" cy="80" r="65" stroke-dasharray="408.4" stroke-dashoffset="408.4"/>
+                    </svg>
+                    <div class="gauge-text">
+                        <div class="gauge-pct" id="res-prob">0%</div>
+                        <div class="gauge-lbl">Probability</div>
+                    </div>
+                </div>
+
+                <div style="text-align: left;">
+                    <div style="display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.4rem;">
+                        <h2 id="res-cust-name" style="font-size: 1.4rem;">Customer Profile</h2>
+                        <span class="badge" id="res-risk-badge">LOW RISK</span>
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.9rem;" id="res-cust-id">ID: -</div>
+                    <div style="margin-top: 0.6rem; font-size: 1.05rem; font-weight: 600;" id="res-pred-label">
+                        Prediction: -
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;" id="res-model-name">
+                        Model: XGBoost
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <!-- Top 5 SHAP Drivers -->
+                <div class="card">
+                    <div class="card-title">Top 5 Influential SHAP Factors</div>
+                    <div id="shap-factors-container" style="padding-top: 0.5rem;">
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Run a prediction to view SHAP factor impacts.</p>
+                    </div>
+                </div>
+
+                <!-- AI Retention Recommendation -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>Retention Recommendation</span>
+                        <span class="badge badge-source" id="rec-source-badge">Source: -</span>
+                    </div>
+                    <div id="rec-content-container">
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Generating strategy...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outreach & Chat Assistant -->
+            <div class="grid-2">
+                <!-- Tone-Adjustable Customer Message -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>Personalized Customer Message</span>
+                        <span class="badge badge-source" id="msg-source-badge">Source: -</span>
+                    </div>
+                    <div style="display: flex; gap: 0.6rem; margin-bottom: 1rem;">
+                        <select id="msg-tone-select" style="flex: 1;">
+                            <option value="Professional" selected>Professional Tone</option>
+                            <option value="Friendly">Friendly Tone</option>
+                            <option value="Empathetic">Empathetic Tone</option>
+                            <option value="Short">Short & Direct Tone</option>
+                        </select>
+                        <button type="button" class="btn btn-secondary" id="btn-generate-msg">Regenerate</button>
+                    </div>
+                    <div id="msg-content-box" style="background: var(--bg); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border); font-size: 0.9rem; min-height: 120px;">
+                        Message will appear here...
+                    </div>
+                </div>
+
+                <!-- Grounded Customer Assistant Chat -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>Grounded Assistant Chat</span>
+                        <span class="badge badge-source" id="chat-source-badge">Grounded</span>
+                    </div>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="chat-bubble chat-assistant">
+                                Hello! I'm grounded in this customer's profile. You can ask why they are likely to churn, inquire about their tenure, charges, complaints, or retention strategies.
+                            </div>
+                        </div>
+                        <form id="chat-form" class="chat-input-bar">
+                            <input type="text" id="chat-input" placeholder="Ask about this customer..." required>
+                            <button type="submit" class="btn">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ====================================================
+             VIEW 4: MODEL PERFORMANCE & EVALUATION
+             ==================================================== -->
+        <section id="view-metrics" class="view-section">
+            <div class="grid-3">
+                <div class="card stat-box">
+                    <div class="stat-label">Model Accuracy</div>
+                    <div class="stat-value" id="metric-accuracy">-</div>
+                    <div style="font-size: 0.8rem; color: #34d399;">Target: > 77.0%</div>
+                </div>
+                <div class="card stat-box">
+                    <div class="stat-label">ROC-AUC Score</div>
+                    <div class="stat-value" id="metric-roc-auc">-</div>
+                    <div style="font-size: 0.8rem; color: #34d399;">Target: > 0.800</div>
+                </div>
+                <div class="card stat-box">
+                    <div class="stat-label">F1-Score</div>
+                    <div class="stat-value" id="metric-f1">-</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);" id="metric-p-r">Precision: - | Recall: -</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <!-- Confusion Matrix -->
+                <div class="card">
+                    <div class="card-title">Test Confusion Matrix (1,000 Samples)</div>
+                    <table class="cm-table">
+                        <tr>
+                            <th></th>
+                            <th>Predicted: Stay</th>
+                            <th>Predicted: Churn</th>
+                        </tr>
+                        <tr>
+                            <th>Actual: Stay</th>
+                            <td class="cm-cell" style="background: rgba(16, 185, 129, 0.1);">
+                                <span id="cm-tn">-</span>
+                                <small>True Negatives</small>
+                            </td>
+                            <td class="cm-cell" style="background: rgba(239, 68, 68, 0.1);">
+                                <span id="cm-fp">-</span>
+                                <small>False Positives</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Actual: Churn</th>
+                            <td class="cm-cell" style="background: rgba(239, 68, 68, 0.1);">
+                                <span id="cm-fn">-</span>
+                                <small>False Negatives</small>
+                            </td>
+                            <td class="cm-cell" style="background: rgba(16, 185, 129, 0.1);">
+                                <span id="cm-tp">-</span>
+                                <small>True Positives</small>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Top 10 Global Feature Importances -->
+                <div class="card">
+                    <div class="card-title">Top 10 Global Feature Importances</div>
+                    <div id="global-importance-container">
+                        <p style="color: var(--text-muted);">Loading feature importances...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

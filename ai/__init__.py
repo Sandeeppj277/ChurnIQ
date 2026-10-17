@@ -1,0 +1,1 @@
+# ChurnIQ — AI Integration Package
